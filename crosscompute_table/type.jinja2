@@ -2,7 +2,6 @@
 {% set maximum_row_count = 50 %}
 
 {% macro head_style_loaded(request) %}{% endmacro %}
-
 {% macro head_style_inline(request) %}{% endmacro %}
 
 {% macro head_script_inline(request) %}
@@ -11,7 +10,6 @@ x.import_url = '{{ request.route_path('table/import_table') }}';
 {% endmacro %}
 
 {% macro body_script_loaded(request) %}{% endmacro %}
-
 {% macro body_script_inline(request) %}{% endmacro %}
 
 {% macro render_argument(request, data_item) %}
