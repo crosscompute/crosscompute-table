@@ -32,7 +32,7 @@ setup(
     ],
     install_requires=[
         'chardet',
-        'crosscompute>=0.6.8',
+        'crosscompute>=0.6.9',
         'pandas',
         'six',
     ],
