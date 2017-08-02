@@ -1,9 +1,9 @@
-import chardet
 import pandas as pd
 from invisibleroads_macros.disk import get_file_extension
 from crosscompute.exceptions import DataTypeError
 from crosscompute.scripts.serve import import_upload
 from crosscompute.types import DataType
+from functools import partial
 from io import StringIO
 from os.path import exists
 
@@ -37,13 +37,7 @@ class TableType(DataType):
         if not exists(path):
             raise IOError
         if path.endswith('.csv'):
-            try:
-                table = pd.read_csv(
-                    path, encoding='utf-8', skipinitialspace=True)
-            except UnicodeDecodeError:
-                encoding = _get_encoding(open(path).read())
-                table = pd.read_csv(
-                    path, encoding=encoding, skipinitialspace=True)
+            table = _load_csv(path)
         elif path.endswith('.msg'):
             table = pd.read_msgpack(path)
         elif path.endswith('.json'):
@@ -72,12 +66,14 @@ def import_table(request):
     return import_upload(request, TableType, {'class': 'editable'})
 
 
-def _get_encoding(content):
-    best_encoding = chardet.detect(content)['encoding']
-    best_alpha_count = 0
-    for encoding in [best_encoding, 'cp850']:
-        alpha_count = sum(x.isalpha() for x in content.decode(encoding))
-        if alpha_count > best_alpha_count:
-            best_encoding = encoding
-            best_alpha_count = alpha_count
-    return best_encoding
+def _load_csv(path):
+    f = partial(pd.read_csv, skipinitialspace=True)
+    try:
+        return f(path, encoding='utf-8')
+    except UnicodeDecodeError:
+        pass
+    try:
+        return f(path, encoding='latin-1')
+    except UnicodeDecodeError:
+        pass
+    return f(open(path, errors='replace'))
