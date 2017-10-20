@@ -1,7 +1,7 @@
 import pandas as pd
 from invisibleroads_macros.disk import get_file_extension
 from crosscompute.exceptions import DataTypeError
-from crosscompute.scripts.serve import import_upload
+from crosscompute.scripts.serve import import_upload_from
 from crosscompute.types import DataType
 from functools import partial
 from io import StringIO
@@ -63,7 +63,7 @@ class TableType(DataType):
 
 
 def import_table(request):
-    return import_upload(request, TableType, {'class': 'editable'})
+    return import_upload_from(request, TableType, {'class': 'editable'})
 
 
 def _load_csv(path):
