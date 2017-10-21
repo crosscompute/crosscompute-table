@@ -50,9 +50,11 @@ class TableType(DataType):
         return table
 
     @classmethod
-    def parse(Class, text):
+    def parse(Class, x, default_value=None):
+        if isinstance(x, pd.DataFrame):
+            return x
         return pd.read_csv(
-            StringIO(text), encoding='utf-8', skipinitialspace=True)
+            StringIO(x), encoding='utf-8', skipinitialspace=True)
 
     @classmethod
     def render(Class, table, format_name='csv'):
