@@ -17,6 +17,7 @@ class TableType(DataType):
     views = [
         'import_table',
     ]
+    requires_default_value = False
 
     @classmethod
     def save(Class, path, table):
