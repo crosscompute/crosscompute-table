@@ -5,7 +5,7 @@ from crosscompute.tests import run
 def test_good_input(tmpdir):
     args = str(tmpdir), 'load-table', {'a_table_path': 'good.csv'}
     r = run(*args)
-    assert r['standard_outputs']['row_count'] == 3
+    assert r['raw_outputs']['row_count'] == 3
 
 
 if __name__ == '__main__':
