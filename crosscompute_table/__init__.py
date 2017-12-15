@@ -39,9 +39,13 @@ class TableType(DataType):
     def load(Class, path):
         if not exists(path):
             raise IOError
-        if path.endswith('.csv'):
-            table = _load_csv(path)
-        elif path.endswith('.csv.xz'):
+        if (
+                path.endswith('.csv') or
+                path.endswith('.csv.gz') or
+                path.endswith('.csv.tar.gz') or
+                path.endswith('.csv.tar.xz') or
+                path.endswith('.csv.xz') or
+                path.endswith('.csv.zip')):
             table = _load_csv(path)
         elif path.endswith('.msg'):
             table = pd.read_msgpack(path)
