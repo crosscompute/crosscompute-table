@@ -23,6 +23,8 @@ class TableType(DataType):
     def save(Class, path, table):
         if path.endswith('.csv'):
             table.to_csv(path, encoding='utf-8', index=False)
+        elif path.endswith('.csv.xz'):
+            table.to_csv(path, encoding='utf-8', index=False, compression='xz')
         elif path.endswith('.msg'):
             table.to_msgpack(path, compress='blosc')
         elif path.endswith('.json'):
@@ -38,6 +40,8 @@ class TableType(DataType):
         if not exists(path):
             raise IOError
         if path.endswith('.csv'):
+            table = _load_csv(path)
+        elif path.endswith('.csv.xz'):
             table = _load_csv(path)
         elif path.endswith('.msg'):
             table = pd.read_msgpack(path)
