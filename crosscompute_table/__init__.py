@@ -38,7 +38,7 @@ class TableType(DataType):
     @classmethod
     def load(Class, path):
         if not exists(path):
-            raise IOError
+            raise IOError('path not found (%s)' % path)
         if (
                 path.endswith('.csv') or
                 path.endswith('.csv.gz') or
