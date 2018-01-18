@@ -36,7 +36,7 @@ class TableType(DataType):
                 'file format not supported (%s)' % get_file_extension(path))
 
     @classmethod
-    def load(Class, path):
+    def load(Class, path, default_value=None):
         if not exists(path):
             raise IOError('path not found (%s)' % path)
         if (
