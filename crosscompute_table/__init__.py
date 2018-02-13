@@ -10,7 +10,7 @@ from os.path import exists
 
 class TableType(DataType):
     suffixes = 'table',
-    formats = 'csv', 'msg', 'json', 'xls', 'xlsx'
+    formats = 'csv', 'json'
     style = 'crosscompute_table:assets/part.min.css'
     script = 'crosscompute_table:assets/part.min.js'
     template = 'crosscompute_table:type.jinja2'
