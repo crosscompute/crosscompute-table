@@ -1,11 +1,13 @@
 import pandas as pd
 from invisibleroads_macros.disk import get_file_extension
+from invisibleroads_macros.table import load_csv_safely
 from crosscompute.exceptions import DataTypeError
 from crosscompute.scripts.serve import import_upload_from
 from crosscompute.types import DataType
-from functools import partial
 from io import StringIO
 from os.path import exists
+
+from .exceptions import EmptyTableError
 
 
 class TableType(DataType):
@@ -39,31 +41,34 @@ class TableType(DataType):
     def load(Class, path, default_value=None):
         if not exists(path):
             raise IOError('file not found (%s)' % path)
-        if (
-                path.endswith('.csv') or
-                path.endswith('.csv.gz') or
-                path.endswith('.csv.tar.gz') or
-                path.endswith('.csv.tar.xz') or
-                path.endswith('.csv.xz') or
-                path.endswith('.csv.zip')):
-            table = _load_csv(path)
-        elif path.endswith('.msg'):
-            table = pd.read_msgpack(path)
-        elif path.endswith('.json'):
-            table = pd.read_json(path, orient='split')
-        elif path.endswith('.xls') or path.endswith('.xlsx'):
-            table = pd.read_excel(path)
-        else:
-            raise DataTypeError(
-                'file format not supported (%s)' % get_file_extension(path))
+        try:
+            if (
+                    path.endswith('.csv') or
+                    path.endswith('.csv.gz') or
+                    path.endswith('.csv.tar.gz') or
+                    path.endswith('.csv.tar.xz') or
+                    path.endswith('.csv.xz') or
+                    path.endswith('.csv.zip')):
+                table = load_csv_safely(path)
+            elif path.endswith('.msg'):
+                table = pd.read_msgpack(path)
+            elif path.endswith('.json'):
+                table = pd.read_json(path, orient='split')
+            elif path.endswith('.xls') or path.endswith('.xlsx'):
+                table = pd.read_excel(path)
+            else:
+                raise DataTypeError((
+                    'file format not supported '
+                    '(%s)' % get_file_extension(path)))
+        except pd.errors.EmptyDataError:
+            raise EmptyTableError('file empty')
         return table
 
     @classmethod
     def parse(Class, x, default_value=None):
         if isinstance(x, pd.DataFrame):
             return x
-        return pd.read_csv(
-            StringIO(x), encoding='utf-8', skipinitialspace=True)
+        return load_csv_safely(StringIO(x))
 
     @classmethod
     def render(Class, table, format_name='csv'):
@@ -75,16 +80,3 @@ class TableType(DataType):
 
 def import_table(request):
     return import_upload_from(request, TableType, {'class': 'editable'})
-
-
-def _load_csv(path):
-    f = partial(pd.read_csv, skipinitialspace=True)
-    try:
-        return f(path, encoding='utf-8')
-    except UnicodeDecodeError:
-        pass
-    try:
-        return f(path, encoding='latin-1')
-    except UnicodeDecodeError:
-        pass
-    return f(open(path, errors='replace'))
