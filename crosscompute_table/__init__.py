@@ -10,6 +10,9 @@ from os.path import exists
 from .exceptions import EmptyTableError
 
 
+MAXIMUM_DISPLAY_COUNT = 256
+
+
 class TableType(DataType):
     suffixes = 'table',
     formats = 'csv', 'json'
@@ -38,7 +41,11 @@ class TableType(DataType):
                 'file format not supported (%s)' % get_file_extension(path))
 
     @classmethod
-    def load(Class, path, default_value=None):
+    def load_for_view(Class, path, default_value=None):
+        return Class.load(path, default_value, partly=True)
+
+    @classmethod
+    def load(Class, path, default_value=None, partly=False):
         if not exists(path):
             raise IOError('file not found (%s)' % path)
         try:
@@ -49,7 +56,10 @@ class TableType(DataType):
                     path.endswith('.csv.tar.xz') or
                     path.endswith('.csv.xz') or
                     path.endswith('.csv.zip')):
-                table = load_csv_safely(path)
+                kw = {}
+                if partly:
+                    kw['nrows'] = MAXIMUM_DISPLAY_COUNT + 1
+                table = load_csv_safely(path, **kw)
             elif path.endswith('.msg'):
                 table = pd.read_msgpack(path)
             elif path.endswith('.json'):
@@ -62,6 +72,11 @@ class TableType(DataType):
                     '(%s)' % get_file_extension(path)))
         except pd.errors.EmptyDataError:
             raise EmptyTableError('file empty')
+        if len(table) > MAXIMUM_DISPLAY_COUNT:
+            table = table[:MAXIMUM_DISPLAY_COUNT]
+            table.is_abbreviated = True
+        else:
+            table.is_abbreviated = False
         return table
 
     @classmethod

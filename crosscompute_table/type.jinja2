@@ -1,5 +1,4 @@
 {% from 'invisibleroads_uploads:templates/parts.jinja2' import upload_button %}
-{% set maximum_row_count = 256 %}
 
 {% macro head_style_loaded(request) %}{% endmacro %}
 {% macro head_style_inline(request) %}{% endmacro %}
@@ -25,11 +24,9 @@ x.import_url = '{{ request.route_path('table/import_table') }}';
 
 <div id="{{ key }}-scrollable" class="scrollable">
 {% if table is not none %}
-{% set row_count = table.index.shape[0] %}
-{% set is_big = row_count > maximum_row_count %}
+{% set is_abbreviated = table.is_abbreviated %}
 
-{% if is_big %}
-{% set table = table[:maximum_row_count] %}
+{% if table.is_abbreviated %}
 {% set class = '' %}
 {% endif %}
 
@@ -45,12 +42,12 @@ x.import_url = '{{ request.route_path('table/import_table') }}';
 </table>
 {% else %}
 
-{% set is_big = False %}
+{% set is_abbreviated = False %}
 {% endif %}
 </div>
 
-{% if is_big %}
-<div class="alert alert-warning">Showing first {{ '{:,}'.format(maximum_row_count) }} out of {{ '{:,}'.format(row_count) }} rows</div>
+{% if is_abbreviated %}
+<div class="alert alert-warning">Showing first {{ '{:,}'.format(table|length) }} rows; editing disabled</div>
 <input name="{{ key }}" type="hidden" value="{{ data_item.file_location }}">
 {% else %}
 <input name="{{ key }}_csv" type="hidden">
