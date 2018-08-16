@@ -72,7 +72,7 @@ class TableType(DataType):
                     '(%s)' % get_file_extension(path)))
         except pd.errors.EmptyDataError:
             raise EmptyTableError('file empty')
-        if len(table) > MAXIMUM_DISPLAY_COUNT:
+        if partly and len(table) > MAXIMUM_DISPLAY_COUNT:
             table = table[:MAXIMUM_DISPLAY_COUNT]
             table.is_abbreviated = True
         else:
