@@ -1,3 +1,4 @@
+import csv
 import pandas as pd
 from invisibleroads_macros.disk import get_file_extension
 from invisibleroads_macros.table import load_csv_safely
@@ -27,9 +28,18 @@ class TableType(DataType):
     @classmethod
     def save(Class, path, table):
         if path.endswith('.csv'):
-            table.to_csv(path, encoding='utf-8', index=False)
+            table.to_csv(
+                path,
+                encoding='utf-8',
+                index=False,
+                quoting=csv.QUOTE_NONNUMERIC)
         elif path.endswith('.csv.xz'):
-            table.to_csv(path, encoding='utf-8', index=False, compression='xz')
+            table.to_csv(
+                path,
+                encoding='utf-8',
+                index=False,
+                quoting=csv.QUOTE_NONNUMERIC,
+                compression='xz')
         elif path.endswith('.msg'):
             table.to_msgpack(path, compress='blosc')
         elif path.endswith('.json'):
